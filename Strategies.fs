@@ -5,19 +5,32 @@ module ShutTheBox.Strategies
 // Returns the numbers to shut, if possible, otherwise None.
 type Strategy = int -> int List -> int list option
 
-// The strategy of always choosing the lowest possible number or pair of numbers.
-let rec lowestFirst (target: int) (box: int list) =
+// Gets a list of all possible combinations of numbers in the box that sum to the target.
+let rec combinations (target: int) (box: int list) =
+    let findForTarget = combinations target
     match box with
-    | [] -> None
-    | hd::tl ->
-        if hd = target then Some [hd]
-        else if hd > target then lowestFirst target tl
+    | [] -> []
+    | current::rest ->
+        if current = target then [current]::(findForTarget rest)
+        else if current > target then findForTarget rest
         else
-            let pair = tl |> List.tryFind (fun n -> hd + n = target)
-            match pair with
-            | Some n -> Some [hd; n]
-            | None -> lowestFirst target tl
+            let combinationsWithCurrent =
+                combinations (target - current) rest
+                |> List.map (fun c -> current::c)
+            combinationsWithCurrent |> List.append (findForTarget rest)
 
-// The strategy of always choosing the highest possible number or pair of numbers.
-let highestFirst (target: int) (box: int list) =
-    box |> List.rev |> lowestFirst target
+let legalCombinations target box =
+    combinations target box
+    |> List.filter (fun c -> c.Length < 4)
+
+// The strategy of always including the lowest possible number
+let rec lowestFirst target box =
+    legalCombinations target box
+    |> List.sortBy List.min
+    |> List.tryHead
+    
+// The strategy of always including the highest possible number
+let highestFirst target box =
+    legalCombinations target box
+    |> List.sortByDescending List.max
+    |> List.tryHead
