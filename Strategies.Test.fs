@@ -20,7 +20,7 @@ let lowestFirstTestData: obj[][] = [|
 [<MemberData("lowestFirstTestData")>]
 let lowestFirstTest (box, target, expected) =
     let result = lowestFirst target box
-    expected |> should equal result
+    result |> should equal expected
 
 let highestFirstTestData: obj[][] = [|
     [|[1..9]; 2; Some [2]|]
@@ -37,4 +37,14 @@ let highestFirstTestData: obj[][] = [|
 [<MemberData("highestFirstTestData")>]
 let highestFirstTest (box, target, expected) =
     let result = highestFirst target box
+    result |> should equal expected
+
+let avoidAllTestData: obj[][] = [|
+    [|[1..9]; 7; Some [1, 6]|]
+|]
+
+[<Theory>]
+[<MemberData("avoidAllTestData")>]
+let avoidAllTest (box, target, expected) =
+    let result = avoidAll target box
     result |> should equal expected

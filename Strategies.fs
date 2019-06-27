@@ -1,5 +1,7 @@
 module ShutTheBox.Strategies
 
+open System
+
 // The signature for a strategy function.
 // Takes a target number and the list of numbers still in play.
 // Returns the numbers to shut, if possible, otherwise None.
@@ -23,14 +25,22 @@ let legalCombinations target box =
     combinations target box
     |> List.filter (fun c -> c.Length < 4)
 
-// The strategy of always including the lowest possible number
-let rec lowestFirst target box =
+let applyStrategy fn target box =
     legalCombinations target box
-    |> List.sortBy List.min
+    |> fn
     |> List.tryHead
+
+// The strategy of always including the lowest possible number
+let lowestFirst = applyStrategy (List.sortBy List.min)
     
 // The strategy of always including the highest possible number
-let highestFirst target box =
-    legalCombinations target box
-    |> List.sortByDescending List.max
-    |> List.tryHead
+let highestFirst = applyStrategy (List.sortByDescending List.max)
+
+let containsAny items list = list |> List.exists (fun x -> List.contains x items)
+
+// TODO check priority
+let avoidAll ns = applyStrategy (List.sortBy (containsAny ns))
+
+let distanceFrom (target: int) x = (target - x) |> Math.Abs
+
+let furthestFrom n = applyStrategy (List.sortByDescending (List.sumBy (distanceFrom n)))
