@@ -15,7 +15,8 @@ let closeNumbers (strategy: Strategy) target box =
 
 
 let doThrow strategy box =
-    let target = roll2Dice()
+    let hasNumbersAbove6 = List.exists ((>) 6) box
+    let target = if hasNumbersAbove6 then roll2Dice() else rollDie()
     let result = closeNumbers strategy target box
     // printfn "%i -> %A" target result
     result
